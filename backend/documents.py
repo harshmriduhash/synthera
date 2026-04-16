@@ -47,6 +47,20 @@ async def upload_document(
         # Store in Vector DB
         vector_store.add_documents(chunks, doc_id=str(db_doc.id))
         
+        # Extract Entities for Knowledge Graph
+        from .agents.entity_agent import EntityAgent
+        entity_agent = EntityAgent()
+        all_text = "\n\n".join([p["content"] for p in pages[:5]]) # Process first 5 pages for MVP
+        graph_data = entity_agent.run(all_text)
+        
+        for e in graph_data.get("entities", []):
+            db_entity = models.Entity(doc_id=db_doc.id, name=e["name"], type=e["type"])
+            db.add(db_entity)
+        
+        for r in graph_data.get("relations", []):
+            db_rel = models.Relation(doc_id=db_doc.id, subject=r["subject"], relation=r["relation"], object=r["object"])
+            db.add(db_rel)
+        
         db_doc.status = "ready"
         db.commit()
     except Exception as e:
@@ -61,3 +75,11 @@ def list_documents(db: Session = Depends(database.get_db)):
     user_id = 1
     docs = db.query(models.Document).filter(models.Document.user_id == user_id).all()
     return docs
+
+@router.get("/entities")
+def list_entities(db: Session = Depends(database.get_db)):
+    return db.query(models.Entity).all()
+
+@router.get("/relations")
+def list_relations(db: Session = Depends(database.get_db)):
+    return db.query(models.Relation).all()

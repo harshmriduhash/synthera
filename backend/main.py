@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from . import auth, database, models, documents, chat
+from . import auth, database, models, documents, chat, voice
 
 # Create tables
 models.Base.metadata.create_all(bind=database.engine)
@@ -18,6 +18,7 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(documents.router, prefix="/documents", tags=["documents"])
 app.include_router(chat.router, prefix="/chat", tags=["chat"])
+app.include_router(voice.router, prefix="/voice", tags=["voice"])
 
 
 @app.get("/")

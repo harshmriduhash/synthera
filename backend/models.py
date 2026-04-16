@@ -43,3 +43,18 @@ class FeedItem(Base):
     content = Column(Text)
     type = Column(String) # event, anomaly, trend
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+class Entity(Base):
+    __tablename__ = "entities"
+    id = Column(Integer, primary_key=True, index=True)
+    doc_id = Column(Integer, ForeignKey("documents.id"))
+    name = Column(String)
+    type = Column(String) # Company, Person, Metric, etc.
+
+class Relation(Base):
+    __tablename__ = "relations"
+    id = Column(Integer, primary_key=True, index=True)
+    doc_id = Column(Integer, ForeignKey("documents.id"))
+    subject = Column(String)
+    relation = Column(String)
+    object = Column(String)
