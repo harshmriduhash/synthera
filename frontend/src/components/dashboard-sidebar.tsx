@@ -1,48 +1,98 @@
 "use client";
 
-import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
-import { MessageSquare, Files, Activity, Database, Settings, BarChart3 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { MessageSquare, Files, Activity, Database, Settings, BarChart3 } from "lucide-react";
+
+const NAV = [
+    { label: "Chat", icon: MessageSquare, href: "/dashboard" },
+    { label: "Documents", icon: Files, href: "/dashboard/documents" },
+    { label: "Intelligence Feed", icon: Activity, href: "/dashboard/feed" },
+    { label: "Metrics", icon: BarChart3, href: "/dashboard/metrics" },
+    { label: "Knowledge Graph", icon: Database, href: "/dashboard/graph" },
+    { label: "Settings", icon: Settings, href: "/dashboard/settings" },
+];
 
 export function DashboardSidebar() {
     const pathname = usePathname();
 
-    const items = [
-        { name: "Chat", icon: MessageSquare, path: "/dashboard" },
-        { name: "Documents", icon: Files, path: "/dashboard/documents" },
-        { name: "Intelligence Feed", icon: Activity, path: "/dashboard/feed" },
-        { name: "Metrics", icon: BarChart3, path: "/dashboard/metrics" },
-        { name: "Knowledge Graph", icon: Database, path: "/dashboard/graph" },
-        { name: "Settings", icon: Settings, path: "/dashboard/settings" },
-    ];
-
     return (
-        <Sidebar className="border-r border-white/5 bg-[#080B14]">
-            <SidebarHeader className="p-6">
-                <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center font-bold text-white">S</div>
-                    <span className="text-xl font-bold tracking-tight">SYNTHERA</span>
+        <aside
+            style={{
+                width: "240px",
+                height: "100vh",
+                display: "flex",
+                flexDirection: "column",
+                backgroundColor: "#080808",
+                borderRight: "1px solid rgba(255,255,255,0.06)",
+                overflow: "hidden",
+                flexShrink: 0,
+            }}
+        >
+            {/* Logo */}
+            <div style={{ padding: "28px 24px 24px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                <Link href="/dashboard" style={{ display: "flex", alignItems: "center", gap: "12px", textDecoration: "none" }}>
+                    <div style={{
+                        width: 36, height: 36, background: "#fff", borderRadius: 10,
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        fontWeight: 900, fontSize: 18, color: "#000", flexShrink: 0,
+                    }}>S</div>
+                    <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.8)", whiteSpace: "nowrap" }}>
+                        SYNTHERA
+                    </span>
+                </Link>
+            </div>
+
+            {/* Nav */}
+            <nav style={{ flex: 1, padding: "16px 12px", overflowY: "auto", overflowX: "hidden" }}>
+                {NAV.map((item) => {
+                    const active = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
+                    const Icon = item.icon;
+                    return (
+                        <Link
+                            key={item.href}
+                            href={item.href}
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "10px",
+                                padding: "10px 12px",
+                                marginBottom: "2px",
+                                borderRadius: "10px",
+                                textDecoration: "none",
+                                backgroundColor: active ? "rgba(255,255,255,0.08)" : "transparent",
+                                color: active ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.38)",
+                                transition: "background-color 0.15s, color 0.15s",
+                            }}
+                            onMouseEnter={e => { if (!active) (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(255,255,255,0.04)"; }}
+                            onMouseLeave={e => { if (!active) (e.currentTarget as HTMLElement).style.backgroundColor = "transparent"; }}
+                        >
+                            <Icon size={16} style={{ flexShrink: 0 }} />
+                            <span style={{ fontSize: 13, fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                {item.label}
+                            </span>
+                        </Link>
+                    );
+                })}
+            </nav>
+
+            {/* Status badge */}
+            <div style={{ padding: "16px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                <div style={{
+                    padding: "12px 14px", borderRadius: "10px",
+                    backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)",
+                }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+                        <span style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.4)", display: "inline-block", flexShrink: 0 }} />
+                        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.15em", color: "rgba(255,255,255,0.3)", textTransform: "uppercase" }}>
+                            Nodes Active
+                        </span>
+                    </div>
+                    <div style={{ height: 3, background: "rgba(255,255,255,0.05)", borderRadius: 99, overflow: "hidden" }}>
+                        <div style={{ width: "85%", height: "100%", background: "rgba(255,255,255,0.2)", borderRadius: 99 }} />
+                    </div>
                 </div>
-            </SidebarHeader>
-            <SidebarContent>
-                <SidebarMenu className="px-4">
-                    {items.map((item) => (
-                        <SidebarMenuItem key={item.name} className="mb-1">
-                            <SidebarMenuButton
-                                asChild
-                                isActive={pathname === item.path}
-                                className={`py-6 rounded-xl hover:bg-white/5 transition-colors ${pathname === item.path ? 'bg-primary/10 text-primary' : 'text-slate-400'}`}
-                            >
-                                <Link href={item.path} className="flex items-center gap-3">
-                                    <item.icon className="w-5 h-5" />
-                                    <span className="font-medium text-sm">{item.name}</span>
-                                </Link>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                    ))}
-                </SidebarMenu>
-            </SidebarContent>
-        </Sidebar>
+            </div>
+        </aside>
     );
 }

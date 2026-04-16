@@ -1,96 +1,101 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 
 export default function LandingPage() {
   return (
-    <div className="flex flex-col min-h-screen">
-      <nav className="flex items-center justify-between px-8 py-6 border-b border-white/10 backdrop-blur-md sticky top-0 z-50">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center font-bold text-white">S</div>
-          <span className="text-xl font-bold tracking-tight">SYNTHERA AI</span>
-        </div>
-        <div className="hidden md:flex items-center gap-8 text-sm text-slate-400">
-          <Link href="#features" className="hover:text-white transition-colors">Features</Link>
-          <Link href="#pricing" className="hover:text-white transition-colors">Pricing</Link>
-          <Link href="#security" className="hover:text-white transition-colors">Security</Link>
-        </div>
-        <div className="flex items-center gap-4">
-          <Link href="/login">
-            <Button variant="ghost" className="text-slate-400 hover:text-white">Login</Button>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", backgroundColor: "#080808", color: "#fff", fontFamily: "inherit" }}>
+      {/* Nav */}
+      <header style={{ position: "sticky", top: 0, zIndex: 50, borderBottom: "1px solid rgba(255,255,255,0.06)", backgroundColor: "rgba(8,8,8,0.85)", backdropFilter: "blur(14px)" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 32px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none" }}>
+            <div style={{ width: 34, height: 34, backgroundColor: "#fff", borderRadius: 9, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 16, color: "#000", flexShrink: 0 }}>S</div>
+            <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: "0.14em", color: "rgba(255,255,255,0.82)" }}>SYNTHERA</span>
           </Link>
-          <Link href="/dashboard">
-            <Button className="bg-primary hover:bg-primary/90 text-white px-6">Get Started</Button>
-          </Link>
-        </div>
-      </nav>
 
-      <main className="flex-1">
-        <section className="relative px-8 pt-24 pb-32 flex flex-col items-center text-center overflow-hidden">
-          {/* Ambient Background Gradient */}
-          <div className="absolute top-0 -z-10 h-full w-full bg-[#0B0F1A]">
-            <div className="absolute bottom-auto left-auto right-0 top-0 h-[500px] w-[500px] -translate-x-[30%] translate-y-[20%] rounded-full bg-[rgba(31,111,235,0.1)] opacity-50 blur-[80px]"></div>
-          </div>
+          <nav style={{ display: "flex", alignItems: "center", gap: 32 }}>
+            <Link href="#features" style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.38)", textDecoration: "none", letterSpacing: "0.05em" }}>Features</Link>
+            <Link href="#security" style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.38)", textDecoration: "none", letterSpacing: "0.05em" }}>Security</Link>
+          </nav>
 
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 text-xs text-primary mb-8">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-            </span>
-            Next-Gen AI Analyst
-          </div>
-
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight max-w-4xl mb-8 leading-[1.1]">
-            Stop Reading 100-Page Reports. <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">
-              Start Getting Answers.
-            </span>
-          </h1>
-
-          <p className="text-lg text-slate-400 max-w-2xl mb-12">
-            Synthera AI is an AI-native intelligence platform that converts unstructured financial data into structured, explainable insights in seconds.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Link href="/dashboard">
-              <Button size="lg" className="bg-primary hover:bg-primary/90 text-white px-8 h-14 text-lg">
-                Try Synthera Free
-              </Button>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <Link href="/login" style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.38)", textDecoration: "none" }}>Login</Link>
+            <Link href="/dashboard" style={{ display: "inline-block", padding: "8px 20px", backgroundColor: "#fff", color: "#000", fontWeight: 700, fontSize: 12, borderRadius: 9, textDecoration: "none", letterSpacing: "0.04em" }}>
+              Get Started
             </Link>
-            <Button size="lg" variant="outline" className="border-white/10 hover:bg-white/5 h-14 px-8 text-lg">
-              Book a Demo
-            </Button>
+          </div>
+        </div>
+      </header>
+
+      <main style={{ flex: 1 }}>
+        {/* Hero */}
+        <section style={{ padding: "90px 32px 100px", textAlign: "center", position: "relative", overflow: "hidden" }}>
+          {/* Ambient */}
+          <div style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: 600, height: 500, background: "radial-gradient(ellipse at center, rgba(255,255,255,0.04) 0%, transparent 70%)", pointerEvents: "none" }} />
+
+          <div style={{ position: "relative", maxWidth: 820, margin: "0 auto" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "6px 16px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.09)", backgroundColor: "rgba(255,255,255,0.04)", marginBottom: 36 }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.5)", display: "inline-block" }} />
+              <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.42)", letterSpacing: "0.18em", textTransform: "uppercase" }}>Strategic Protocol v1.0</span>
+            </div>
+
+            <h1 style={{ margin: "0 0 24px", fontSize: "clamp(40px, 6vw, 72px)", fontWeight: 900, lineHeight: 1, letterSpacing: "-0.03em", color: "rgba(255,255,255,0.92)" }}>
+              Autonomous Intelligence<br />
+              <span style={{ color: "rgba(255,255,255,0.32)" }}>for Global Finance.</span>
+            </h1>
+
+            <p style={{ margin: "0 auto 40px", maxWidth: 520, fontSize: 17, lineHeight: 1.7, color: "rgba(255,255,255,0.35)", fontWeight: 400 }}>
+              Deploy multi-agent reasoning across your document vault to extract crystalline strategic signals in seconds.
+            </p>
+
+            <div style={{ display: "flex", justifyContent: "center", gap: 14, flexWrap: "wrap" }}>
+              <Link href="/dashboard" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "14px 32px", backgroundColor: "#fff", color: "#000", fontWeight: 700, fontSize: 13, borderRadius: 12, textDecoration: "none", letterSpacing: "0.04em" }}>
+                Initiate Session →
+              </Link>
+              <Link href="/dashboard/documents" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "14px 32px", backgroundColor: "transparent", color: "rgba(255,255,255,0.45)", fontWeight: 600, fontSize: 13, borderRadius: 12, textDecoration: "none", border: "1px solid rgba(255,255,255,0.1)", letterSpacing: "0.04em" }}>
+                View Documentation
+              </Link>
+            </div>
           </div>
 
-          <div className="mt-24 w-full max-w-5xl rounded-2xl border border-white/10 bg-slate-900/50 backdrop-blur-xl p-4 shadow-2xl">
-            {/* Product Mockup Placeholder */}
-            <div className="aspect-[16/9] w-full rounded-lg bg-[#0B1221] flex items-center justify-center border border-white/5">
-              <div className="text-slate-500 flex flex-col items-center">
-                <div className="w-12 h-12 rounded-full border border-slate-700 animate-pulse mb-4"></div>
-                <div className="h-4 w-48 bg-slate-800 rounded animate-pulse"></div>
+          {/* Dashboard Mockup */}
+          <div style={{ position: "relative", maxWidth: 960, margin: "72px auto 0", borderRadius: 20, border: "1px solid rgba(255,255,255,0.08)", backgroundColor: "#060606", padding: 12, boxShadow: "0 60px 120px rgba(0,0,0,0.6)" }}>
+            <div style={{ aspectRatio: "16/9", borderRadius: 12, backgroundColor: "#030303", border: "1px solid rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden" }}>
+              {/* Mini dashboard preview */}
+              <div style={{ display: "flex", width: "100%", height: "100%", position: "absolute", inset: 0 }}>
+                {/* Sidebar stub */}
+                <div style={{ width: "20%", backgroundColor: "#080808", borderRight: "1px solid rgba(255,255,255,0.06)", padding: "20px 14px", display: "flex", flexDirection: "column", gap: 8 }}>
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} style={{ height: 28, borderRadius: 6, backgroundColor: i === 0 ? "rgba(255,255,255,0.07)" : "transparent" }} />
+                  ))}
+                </div>
+                {/* Content stub */}
+                <div style={{ flex: 1, padding: "20px 24px", display: "flex", flexDirection: "column", gap: 14 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 10 }}>
+                    {[...Array(4)].map((_, i) => <div key={i} style={{ height: 54, borderRadius: 8, backgroundColor: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.05)" }} />)}
+                  </div>
+                  <div style={{ flex: 1, borderRadius: 8, backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.04)" }} />
+                </div>
               </div>
             </div>
           </div>
         </section>
 
-        <section id="features" className="px-8 py-32 border-t border-white/5">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold mb-4">Enterprise-Grade Intelligence</h2>
-              <p className="text-slate-400 max-w-2xl mx-auto">Built for analysts, founders, and consultants who need clarity in a sea of noise.</p>
+        {/* Features */}
+        <section id="features" style={{ padding: "80px 32px", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+          <div style={{ maxWidth: 1000, margin: "0 auto" }}>
+            <div style={{ textAlign: "center", marginBottom: 52 }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.25)", letterSpacing: "0.3em", textTransform: "uppercase", marginBottom: 14 }}>Capabilities</p>
+              <h2 style={{ margin: 0, fontSize: "clamp(24px, 3vw, 36px)", fontWeight: 800, color: "rgba(255,255,255,0.82)", letterSpacing: "-0.02em" }}>Enterprise-Grade Intelligence</h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 18 }}>
               {[
-                { title: "Document Intelligence", desc: "Automated parsing and extraction from complex PDFs and financial reports." },
-                { title: "Decision Engine", desc: "AI-driven recommendations based on multi-signal analysis and market trends." },
-                { title: "Explainability Layer", desc: "Every insight is backed by source document citations and snippets." }
-              ].map((f, i) => (
-                <div key={i} className="p-8 rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-all group">
-                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
-                    {i === 0 ? "📄" : i === 1 ? "⚙️" : "🔍"}
-                  </div>
-                  <h3 className="text-xl font-semibold mb-3">{f.title}</h3>
-                  <p className="text-slate-400 leading-relaxed">{f.desc}</p>
+                { title: "Node Extraction", desc: "Automated entity and relationship mapping from complex corporate documents and financial reports." },
+                { title: "Strategy Pulse", desc: "AI-driven decision benchmarks based on cross-correlated financial signals and market patterns." },
+                { title: "Vault Security", desc: "End-to-end encrypted reasoning nodes with complete data isolation and audit trails." },
+              ].map(({ title, desc }) => (
+                <div key={title} style={{ padding: "28px", borderRadius: 14, backgroundColor: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                  <h3 style={{ margin: "0 0 12px", fontSize: 16, fontWeight: 700, color: "rgba(255,255,255,0.8)" }}>{title}</h3>
+                  <p style={{ margin: 0, fontSize: 14, lineHeight: 1.7, color: "rgba(255,255,255,0.35)" }}>{desc}</p>
                 </div>
               ))}
             </div>
@@ -98,17 +103,16 @@ export default function LandingPage() {
         </section>
       </main>
 
-      <footer className="border-t border-white/5 py-12 px-8">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-primary rounded flex items-center justify-center font-bold text-xs text-white">S</div>
-            <span className="font-bold">SYNTHERA AI</span>
+      <footer style={{ borderTop: "1px solid rgba(255,255,255,0.05)", padding: "36px 32px" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ width: 28, height: 28, backgroundColor: "rgba(255,255,255,0.08)", borderRadius: 7, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 900, color: "#fff" }}>S</div>
+            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.2em", color: "rgba(255,255,255,0.3)", textTransform: "uppercase" }}>Synthera AI</span>
           </div>
-          <p className="text-sm text-slate-500">© 2026 Synthera AI. All rights reserved.</p>
-          <div className="flex gap-6 text-sm text-slate-500">
-            <Link href="#" className="hover:text-white">Privacy</Link>
-            <Link href="#" className="hover:text-white">Terms</Link>
-            <Link href="#" className="hover:text-white">Twitter</Link>
+          <p style={{ margin: 0, fontSize: 12, color: "rgba(255,255,255,0.22)" }}>© 2026 Synthera AI. All rights reserved.</p>
+          <div style={{ display: "flex", gap: 24 }}>
+            <Link href="#" style={{ fontSize: 12, color: "rgba(255,255,255,0.28)", textDecoration: "none" }}>Privacy</Link>
+            <Link href="#" style={{ fontSize: 12, color: "rgba(255,255,255,0.28)", textDecoration: "none" }}>Terms</Link>
           </div>
         </div>
       </footer>

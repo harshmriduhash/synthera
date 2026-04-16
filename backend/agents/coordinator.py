@@ -1,6 +1,6 @@
-from .retriever_agent import RetrieverAgent
-from .extractor_agent import ExtractorAgent
-from .reasoning_agent import ValidatorAgent, ReasoningAgent
+from agents.retriever_agent import RetrieverAgent
+from agents.extractor_agent import ExtractorAgent
+from agents.reasoning_agent import ValidatorAgent, ReasoningAgent
 from typing import Dict
 
 class MultiAgentSystem:

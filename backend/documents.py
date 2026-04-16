@@ -2,7 +2,7 @@ from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
 from sqlalchemy.orm import Session
 import os
 import uuid
-from . import database, models, document_processor, vector_store
+import database, models, document_processor, vector_store
 
 router = APIRouter()
 
@@ -48,7 +48,7 @@ async def upload_document(
         vector_store.add_documents(chunks, doc_id=str(db_doc.id))
         
         # Extract Entities for Knowledge Graph
-        from .agents.entity_agent import EntityAgent
+        from agents.entity_agent import EntityAgent
         entity_agent = EntityAgent()
         all_text = "\n\n".join([p["content"] for p in pages[:5]]) # Process first 5 pages for MVP
         graph_data = entity_agent.run(all_text)

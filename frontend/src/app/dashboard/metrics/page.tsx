@@ -1,74 +1,105 @@
 "use client";
 
-import { Card } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { BarChart3, TrendingUp, ShieldAlert, Cpu } from "lucide-react";
+import { BarChart3, TrendingUp, ShieldAlert, Cpu, Activity, Zap } from "lucide-react";
+
+const PAGE = { display: "flex", flexDirection: "column" as const, height: "100%", overflow: "hidden", backgroundColor: "#0a0a0a" };
+const HEADER = { flexShrink: 0, padding: "20px 32px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between", backgroundColor: "rgba(0,0,0,0.4)" };
+const SCROLL = { flex: 1, overflowY: "auto" as const, overflowX: "hidden" as const, minHeight: 0, padding: "28px 32px" };
+const INNER = { maxWidth: 900, margin: "0 auto", display: "flex", flexDirection: "column" as const, gap: 24 };
+const CARD = { padding: "24px", borderRadius: 14, backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" };
+
+const KPIs = [
+    { label: "Avg Latency", value: "2.4ms", Icon: Cpu },
+    { label: "Accuracy", value: "98.2%", Icon: TrendingUp },
+    { label: "Divergence", value: "0.1%", Icon: ShieldAlert },
+    { label: "Queries", value: "1,284", Icon: BarChart3 },
+];
+const BARS = [40, 60, 45, 90, 30, 70, 50, 80, 45, 65, 30, 85];
+const AGENTS = [
+    { name: "Retriever", pct: 95 },
+    { name: "Extractor", pct: 88 },
+    { name: "Reasoner", pct: 92 },
+    { name: "Validator", pct: 99 },
+];
 
 export default function MetricsPage() {
-    const metrics = [
-        { label: "Avg. Latency", value: "2.4s", icon: Cpu, color: "text-blue-500" },
-        { label: "Accuracy Rate", value: "98.2%", icon: TrendingUp, color: "text-green-500" },
-        { label: "Hallucination Detected", value: "0.1%", icon: ShieldAlert, color: "text-red-500" },
-        { label: "Total Queries", value: "1,284", icon: BarChart3, color: "text-primary" },
-    ];
-
     return (
-        <div className="flex flex-col h-full">
-            <header className="px-8 py-6 border-b border-white/5">
-                <h1 className="text-xl font-bold">Eval & Performance Dashboard</h1>
-            </header>
+        <div style={PAGE}>
+            <div style={HEADER}>
+                <div>
+                    <p style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "rgba(255,255,255,0.88)" }}>Performance Node</p>
+                    <p style={{ margin: "3px 0 0", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.28)", letterSpacing: "0.2em", textTransform: "uppercase" }}>Real-time Evaluation Metrics</p>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 14px", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 999, backgroundColor: "rgba(255,255,255,0.03)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.3)", letterSpacing: "0.15em", textTransform: "uppercase" }}>
+                    <Activity size={12} />Health: Optimal
+                </div>
+            </div>
 
-            <ScrollArea className="flex-1 p-8">
-                <div className="max-w-6xl mx-auto">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-                        {metrics.map((m, i) => (
-                            <Card key={i} className="bg-white/5 border-white/10 p-6 flex flex-col justify-between">
-                                <div className="flex items-center justify-between mb-4">
-                                    <span className="text-xs text-slate-500 uppercase font-bold tracking-widest">{m.label}</span>
-                                    <m.icon className={`w-5 h-5 ${m.color}`} />
+            <div style={SCROLL}>
+                <div style={INNER}>
+                    {/* KPI Row */}
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
+                        {KPIs.map(({ label, value, Icon }) => (
+                            <div key={label} style={CARD}>
+                                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                                    <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.3)", letterSpacing: "0.15em", textTransform: "uppercase" }}>{label}</span>
+                                    <Icon size={14} color="rgba(255,255,255,0.2)" />
                                 </div>
-                                <div className="text-3xl font-bold">{m.value}</div>
-                            </Card>
+                                <p style={{ margin: 0, fontSize: 28, fontWeight: 900, color: "rgba(255,255,255,0.82)", letterSpacing: "-0.03em" }}>{value}</p>
+                            </div>
                         ))}
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <Card className="bg-white/5 border-white/10 p-8 h-80 flex flex-col items-center justify-center text-center">
-                            <div className="text-slate-500 mb-4 italic">Query Latency Trend (Last 7 Days)</div>
-                            <div className="flex items-end gap-2 h-32 w-full max-w-sm px-4">
-                                {[40, 60, 45, 90, 30, 70, 50].map((h, i) => (
-                                    <div key={i} className="flex-1 bg-primary/20 rounded-t-lg transition-all hover:bg-primary" style={{ height: `${h}%` }}></div>
+                    {/* Charts Row */}
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
+                        {/* Bar Chart */}
+                        <div style={CARD}>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+                                <div>
+                                    <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.6)" }}>Latency Flow</p>
+                                    <p style={{ margin: "4px 0 0", fontSize: 11, color: "rgba(255,255,255,0.22)" }}>Last 12 reasoning cycles</p>
+                                </div>
+                                <span style={{ fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.2)", letterSpacing: "0.2em", textTransform: "uppercase", border: "1px solid rgba(255,255,255,0.07)", padding: "3px 8px", borderRadius: 6 }}>Live</span>
+                            </div>
+                            <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 140 }}>
+                                {BARS.map((h, i) => (
+                                    <div key={i} style={{ flex: 1, height: `${h}%`, backgroundColor: "rgba(255,255,255,0.08)", borderRadius: "3px 3px 0 0", borderTop: "1px solid rgba(255,255,255,0.12)", transition: "background 0.15s" }} />
                                 ))}
                             </div>
-                            <div className="flex justify-between w-full max-w-sm text-[10px] text-slate-600 mt-4 uppercase">
-                                <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                            <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
+                                {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(d => (
+                                    <span key={d} style={{ fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.15)", textTransform: "uppercase" }}>{d}</span>
+                                ))}
                             </div>
-                        </Card>
+                        </div>
 
-                        <Card className="bg-white/5 border-white/10 p-8 h-80">
-                            <h3 className="text-sm font-bold uppercase text-slate-500 mb-6">Agentic Distribution</h3>
-                            <div className="space-y-6">
-                                {[
-                                    { name: "Retriever", value: 95 },
-                                    { name: "Extractor", value: 88 },
-                                    { name: "Reasoner", value: 92 },
-                                    { name: "Validator", value: 99 }
-                                ].map((a, i) => (
-                                    <div key={i}>
-                                        <div className="flex justify-between text-xs mb-2">
-                                            <span>{a.name} Agent Accuracy</span>
-                                            <span className="font-bold">{a.value}%</span>
+                        {/* Agent Health */}
+                        <div style={CARD}>
+                            <p style={{ margin: "0 0 20px", fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.6)" }}>Agentic Health</p>
+                            <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+                                {AGENTS.map(({ name, pct }) => (
+                                    <div key={name}>
+                                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                                            <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.1em" }}>{name}</span>
+                                            <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.65)" }}>{pct}%</span>
                                         </div>
-                                        <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                                            <div className="h-full bg-primary" style={{ width: `${a.value}%` }}></div>
+                                        <div style={{ height: 3, backgroundColor: "rgba(255,255,255,0.05)", borderRadius: 99, overflow: "hidden" }}>
+                                            <div style={{ width: `${pct}%`, height: "100%", backgroundColor: "rgba(255,255,255,0.22)", borderRadius: 99 }} />
                                         </div>
                                     </div>
                                 ))}
                             </div>
-                        </Card>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 24, padding: "10px 14px", borderRadius: 10, backgroundColor: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                    <Zap size={13} color="rgba(255,255,255,0.22)" />
+                                    <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.25)", letterSpacing: "0.15em", textTransform: "uppercase" }}>All Nodes Optimal</span>
+                                </div>
+                                <div style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.2)" }} />
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </ScrollArea>
+            </div>
         </div>
     );
 }

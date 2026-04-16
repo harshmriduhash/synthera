@@ -1,82 +1,107 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Database, Share2, ArrowRight } from "lucide-react";
+import { Layers, Share2, Zap } from "lucide-react";
 import { api } from "@/lib/api";
+
+const PAGE = { display: "flex", flexDirection: "column" as const, height: "100%", overflow: "hidden", backgroundColor: "#0a0a0a" };
+const HEADER = { flexShrink: 0, padding: "20px 32px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between", backgroundColor: "rgba(0,0,0,0.4)" };
+const SCROLL = { flex: 1, overflowY: "auto" as const, overflowX: "hidden" as const, minHeight: 0, padding: "28px 32px" };
+const INNER = { maxWidth: 900, margin: "0 auto", display: "flex", flexDirection: "column" as const, gap: 24 };
+const CARD = { padding: "24px", borderRadius: 14, backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" };
+
+const labelStyle = { margin: "0 0 12px", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.25)", letterSpacing: "0.2em", textTransform: "uppercase" as const };
 
 export default function GraphPage() {
     const [entities, setEntities] = useState<any[]>([]);
     const [relations, setRelations] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchData = async () => {
+        const load = async () => {
             try {
-                const entRes = await api.get("/documents/entities");
-                const relRes = await api.get("/documents/relations");
-                setEntities(entRes);
-                setRelations(relRes);
-            } catch (err) {
-                console.error(err);
+                const [e, r] = await Promise.all([api.get("/documents/entities"), api.get("/documents/relations")]);
+                setEntities(e);
+                setRelations(r);
+            } catch {/* silent */ } finally {
+                setLoading(false);
             }
         };
-        fetchData();
+        load();
     }, []);
 
     return (
-        <div className="flex flex-col h-full">
-            <header className="px-8 py-6 border-b border-white/5">
-                <h1 className="text-xl font-bold">Knowledge Graph</h1>
-            </header>
+        <div style={PAGE}>
+            <div style={HEADER}>
+                <div>
+                    <p style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "rgba(255,255,255,0.88)" }}>Knowledge Graph</p>
+                    <p style={{ margin: "3px 0 0", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.28)", letterSpacing: "0.2em", textTransform: "uppercase" }}>Entity & Relation Map</p>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 14px", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 999, backgroundColor: "rgba(255,255,255,0.03)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.3)", letterSpacing: "0.15em", textTransform: "uppercase" }}>
+                    <Zap size={12} />Live
+                </div>
+            </div>
 
-            <ScrollArea className="flex-1 p-8">
-                <div className="max-w-6xl mx-auto">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-                        <Card className="bg-white/5 border-white/10 p-6">
-                            <div className="text-3xl font-bold text-primary mb-1">{entities.length}</div>
-                            <div className="text-xs text-slate-500 uppercase tracking-wider">Total Entities Extracted</div>
-                        </Card>
-                        <Card className="bg-white/5 border-white/10 p-6">
-                            <div className="text-3xl font-bold text-green-500 mb-1">{relations.length}</div>
-                            <div className="text-xs text-slate-500 uppercase tracking-wider">Identified Relationships</div>
-                        </Card>
-                        <Card className="bg-white/5 border-white/10 p-6">
-                            <div className="text-3xl font-bold text-blue-500 mb-1">Agentic</div>
-                            <div className="text-xs text-slate-500 uppercase tracking-wider">Processing Mode</div>
-                        </Card>
+            <div style={SCROLL}>
+                <div style={INNER}>
+                    {/* Stats */}
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
+                        {[
+                            { label: "Total Nodes", val: loading ? "…" : entities.length, Icon: Layers },
+                            { label: "Relations", val: loading ? "…" : relations.length, Icon: Share2 },
+                            { label: "Confidence", val: "98.4%", Icon: Zap },
+                        ].map(({ label, val, Icon }) => (
+                            <div key={label} style={CARD}>
+                                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                                    <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.28)", letterSpacing: "0.15em", textTransform: "uppercase" }}>{label}</span>
+                                    <Icon size={14} color="rgba(255,255,255,0.2)" />
+                                </div>
+                                <p style={{ margin: 0, fontSize: 28, fontWeight: 900, color: "rgba(255,255,255,0.82)", letterSpacing: "-0.03em" }}>{val}</p>
+                            </div>
+                        ))}
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <div className="space-y-4">
-                            <h2 className="text-sm font-bold uppercase text-slate-500 tracking-widest mb-6">Extracted Entities</h2>
-                            {entities.length === 0 ? (
-                                <p className="text-slate-500 text-sm">No entities extracted yet. Upload a document to start.</p>
+                    {/* Two-column panels */}
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1.6fr", gap: 18 }}>
+                        {/* Nodes */}
+                        <div style={CARD}>
+                            <p style={labelStyle}>Extracted Nodes</p>
+                            {loading ? (
+                                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                                    {[...Array(5)].map((_, i) => <div key={i} className="skeleton" style={{ height: 40 }} />)}
+                                </div>
+                            ) : entities.length === 0 ? (
+                                <p style={{ fontSize: 12, color: "rgba(255,255,255,0.2)", textAlign: "center", padding: "32px 0" }}>No nodes yet — upload documents first.</p>
                             ) : (
-                                <div className="grid grid-cols-2 gap-3">
-                                    {entities.map((ent, i) => (
-                                        <div key={i} className="p-3 bg-white/5 border border-white/5 rounded-xl flex items-center justify-between group hover:border-primary/50 transition-colors">
-                                            <span className="text-sm font-medium">{ent.name}</span>
-                                            <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full">{ent.type}</span>
+                                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                                    {entities.map((e, i) => (
+                                        <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 10px", borderRadius: 8, backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)" }}>
+                                            <span style={{ fontSize: 13, fontWeight: 500, color: "rgba(255,255,255,0.72)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, marginRight: 8 }}>{e.name}</span>
+                                            <span style={{ fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.1em", border: "1px solid rgba(255,255,255,0.07)", padding: "2px 7px", borderRadius: 5, flexShrink: 0 }}>{e.type}</span>
                                         </div>
                                     ))}
                                 </div>
                             )}
                         </div>
 
-                        <div className="space-y-4">
-                            <h2 className="text-sm font-bold uppercase text-slate-500 tracking-widest mb-6">Knowledge Relations</h2>
-                            {relations.length === 0 ? (
-                                <p className="text-slate-500 text-sm">No relations identified yet.</p>
+                        {/* Relations */}
+                        <div style={CARD}>
+                            <p style={labelStyle}>Active Synapses</p>
+                            {loading ? (
+                                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                                    {[...Array(4)].map((_, i) => <div key={i} className="skeleton" style={{ height: 60 }} />)}
+                                </div>
+                            ) : relations.length === 0 ? (
+                                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 160, border: "1.5px dashed rgba(255,255,255,0.08)", borderRadius: 10 }}>
+                                    <p style={{ fontSize: 12, color: "rgba(255,255,255,0.2)", textAlign: "center" }}>No relations identified yet.</p>
+                                </div>
                             ) : (
-                                <div className="space-y-3">
-                                    {relations.map((rel, i) => (
-                                        <div key={i} className="p-4 bg-white/5 border border-white/5 rounded-xl flex items-center gap-4 text-sm group hover:bg-white/[0.07] transition-colors">
-                                            <span className="font-bold text-primary">{rel.subject}</span>
-                                            <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-primary transition-colors" />
-                                            <span className="text-slate-400 italic">{rel.relation}</span>
-                                            <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-primary transition-colors" />
-                                            <span className="font-bold text-green-500">{rel.object}</span>
+                                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                                    {relations.map((r, i) => (
+                                        <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 10, backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)", overflow: "hidden" }}>
+                                            <span style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.75)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.subject}</span>
+                                            <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.25)", textTransform: "uppercase", letterSpacing: "0.1em", flexShrink: 0, whiteSpace: "nowrap" }}>→ {r.relation} →</span>
+                                            <span style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.55)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textAlign: "right" }}>{r.object}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -84,7 +109,7 @@ export default function GraphPage() {
                         </div>
                     </div>
                 </div>
-            </ScrollArea>
+            </div>
         </div>
     );
 }

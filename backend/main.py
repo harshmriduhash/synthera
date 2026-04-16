@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from . import auth, database, models, documents, chat, voice
+import auth, database, models, documents, chat, voice
 
 # Create tables
 models.Base.metadata.create_all(bind=database.engine)

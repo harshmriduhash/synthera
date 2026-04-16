@@ -1,122 +1,152 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Upload, FileText, CheckCircle2, Clock, Trash2, Plus } from "lucide-react";
+import { Upload, FileText, CheckCircle2, Clock, Trash2, Plus, AlertCircle } from "lucide-react";
 import { api } from "@/lib/api";
+
+const PAGE_STYLE = {
+    display: "flex", flexDirection: "column" as const, height: "100%",
+    overflow: "hidden", backgroundColor: "#0a0a0a",
+};
+const HEADER_STYLE = {
+    flexShrink: 0, padding: "20px 32px", borderBottom: "1px solid rgba(255,255,255,0.06)",
+    display: "flex", alignItems: "center", justifyContent: "space-between",
+    backgroundColor: "rgba(0,0,0,0.4)", backdropFilter: "blur(12px)",
+};
+const SCROLL_STYLE = {
+    flex: 1, overflowY: "auto" as const, overflowX: "hidden" as const, minHeight: 0, padding: "28px 32px",
+};
+const INNER_STYLE = { maxWidth: 900, margin: "0 auto" };
 
 export default function DocumentsPage() {
     const [docs, setDocs] = useState<any[]>([]);
     const [isUploading, setIsUploading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     const fetchDocs = async () => {
         try {
             const data = await api.get("/documents/list");
             setDocs(data);
-        } catch (err) {
-            console.error(err);
+        } catch {/* silent */ } finally {
+            setIsLoading(false);
         }
     };
 
     useEffect(() => {
         fetchDocs();
-        const interval = setInterval(fetchDocs, 5000); // Poll for processing status
-        return () => clearInterval(interval);
+        const t = setInterval(fetchDocs, 10000);
+        return () => clearInterval(t);
     }, []);
 
-    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
-
+        e.target.value = "";
         setIsUploading(true);
-        try {
-            await api.upload("/documents/upload", file);
-            fetchDocs();
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setIsUploading(false);
-        }
+        try { await api.upload("/documents/upload", file); await fetchDocs(); }
+        finally { setIsUploading(false); }
     };
 
     return (
-        <div className="flex flex-col h-full">
-            <header className="px-8 py-6 border-b border-white/5 flex items-center justify-between">
-                <h1 className="text-xl font-bold">Document Repository</h1>
-                <div className="relative">
-                    <Input
-                        type="file"
-                        id="file-upload"
-                        className="hidden"
-                        accept=".pdf"
-                        onChange={handleFileUpload}
-                        disabled={isUploading}
-                    />
-                    <Label htmlFor="file-upload">
-                        <Button asChild className="bg-primary hover:bg-primary/90 text-white cursor-pointer">
-                            <span>
-                                {isUploading ? "Uploading..." : <><Plus className="w-4 h-4 mr-2" /> Upload PDF</>}
-                            </span>
-                        </Button>
-                    </Label>
+        <div style={PAGE_STYLE}>
+            {/* Header */}
+            <div style={HEADER_STYLE}>
+                <div>
+                    <p style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "rgba(255,255,255,0.88)" }}>Document Vault</p>
+                    <p style={{ margin: "3px 0 0", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.28)", letterSpacing: "0.2em", textTransform: "uppercase" }}>Managed Repository</p>
                 </div>
-            </header>
+                <label style={{ cursor: "pointer" }}>
+                    <input type="file" accept=".pdf" className="hidden" onChange={handleUpload} disabled={isUploading} />
+                    <span style={{
+                        display: "inline-flex", alignItems: "center", gap: 8,
+                        padding: "8px 18px", borderRadius: 10, cursor: isUploading ? "not-allowed" : "pointer",
+                        backgroundColor: isUploading ? "rgba(255,255,255,0.1)" : "#ffffff",
+                        color: isUploading ? "rgba(255,255,255,0.4)" : "#000",
+                        fontSize: 12, fontWeight: 700,
+                    }}>
+                        {isUploading
+                            ? <><div style={{ width: 14, height: 14, border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />Uploading…</>
+                            : <><Plus size={14} />Upload PDF</>
+                        }
+                    </span>
+                </label>
+            </div>
 
-            <ScrollArea className="flex-1 p-8">
-                <div className="max-w-6xl mx-auto">
-                    {docs.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center h-[50vh] border-2 border-dashed border-white/5 rounded-3xl bg-white/[0.02]">
-                            <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center text-slate-500 mb-6">
-                                <Upload className="w-8 h-8" />
+            {/* Content */}
+            <div style={SCROLL_STYLE}>
+                <div style={INNER_STYLE}>
+                    {isLoading ? (
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 16 }}>
+                            {[...Array(6)].map((_, i) => (
+                                <div key={i} className="skeleton" style={{ height: 160 }} />
+                            ))}
+                        </div>
+                    ) : docs.length === 0 ? (
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 320, gap: 16, textAlign: "center" }}>
+                            <div style={{ width: 64, height: 64, borderRadius: 16, border: "1.5px dashed rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                <Upload size={22} color="rgba(255,255,255,0.2)" />
                             </div>
-                            <h3 className="text-xl font-semibold mb-2">No documents yet</h3>
-                            <p className="text-slate-400 mb-8">Upload your first financial report to start analyzing.</p>
+                            <div>
+                                <p style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "rgba(255,255,255,0.65)" }}>Vault is Empty</p>
+                                <p style={{ margin: "8px 0 0", fontSize: 13, color: "rgba(255,255,255,0.3)", lineHeight: 1.6 }}>Upload PDF documents to begin extraction and analysis.</p>
+                            </div>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {docs.map((doc) => (
-                                <Card key={doc.id} className="bg-white/5 border-white/10 p-6 hover:border-primary/50 transition-all group">
-                                    <div className="flex items-start justify-between mb-4">
-                                        <div className="p-3 bg-primary/10 rounded-xl text-primary">
-                                            <FileText className="w-6 h-6" />
-                                        </div>
-                                        {doc.status === 'ready' ? (
-                                            <div className="flex items-center gap-1 text-xs text-green-500 bg-green-500/10 px-2 py-1 rounded-full">
-                                                <CheckCircle2 className="w-3 h-3" /> Ready
-                                            </div>
-                                        ) : doc.status === 'processing' ? (
-                                            <div className="flex items-center gap-1 text-xs text-yellow-500 bg-yellow-500/10 px-2 py-1 rounded-full">
-                                                <Clock className="w-3 h-3 animate-spin" /> Processing
-                                            </div>
-                                        ) : (
-                                            <div className="text-xs text-red-500 bg-red-500/10 px-2 py-1 rounded-full">Error</div>
-                                        )}
-                                    </div>
-                                    <h3 className="font-semibold truncate mb-2">{doc.filename}</h3>
-                                    <div className="flex items-center justify-between mt-6">
-                                        <span className="text-[10px] text-slate-500 uppercase tracking-wider">
-                                            {new Date(doc.created_at).toLocaleDateString()}
-                                        </span>
-                                        <Button variant="ghost" size="sm" className="text-slate-500 hover:text-red-500 h-8 w-8 p-0">
-                                            <Trash2 className="w-4 h-4" />
-                                        </Button>
-                                    </div>
-                                </Card>
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 16 }}>
+                            {docs.map(doc => (
+                                <DocCard key={doc.id} doc={doc} />
                             ))}
                         </div>
                     )}
                 </div>
-            </ScrollArea>
+            </div>
         </div>
     );
 }
 
-function Input({ ...props }: any) {
-    return <input {...props} />
+function DocCard({ doc }: { doc: any }) {
+    const [hovered, setHovered] = useState(false);
+    return (
+        <div
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            style={{
+                padding: "20px", borderRadius: 14,
+                backgroundColor: hovered ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.03)",
+                border: `1px solid ${hovered ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.06)"}`,
+                transition: "all 0.15s", cursor: "default",
+            }}
+        >
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 14 }}>
+                <div style={{ width: 38, height: 38, borderRadius: 10, backgroundColor: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <FileText size={18} color="rgba(255,255,255,0.4)" />
+                </div>
+                <StatusBadge status={doc.status} />
+            </div>
+            <p style={{ margin: "0 0 4px", fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.8)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{doc.filename}</p>
+            <p style={{ margin: 0, fontSize: 10, color: "rgba(255,255,255,0.22)", fontFamily: "monospace", textTransform: "uppercase" }}>ID: {String(doc.id).slice(0, 8)}</p>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 14, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                <Clock size={11} color="rgba(255,255,255,0.2)" />
+                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.25)" }}>{new Date(doc.created_at).toLocaleDateString()}</span>
+            </div>
+        </div>
+    );
 }
 
-function Label({ children, ...props }: any) {
-    return <label {...props}>{children}</label>
+function StatusBadge({ status }: { status: string }) {
+    if (status === "ready") return (
+        <div style={{ display: "flex", alignItems: "center", gap: 5, padding: "3px 10px", borderRadius: 999, backgroundColor: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.1em", whiteSpace: "nowrap" }}>
+            <CheckCircle2 size={11} />Ready
+        </div>
+    );
+    if (status === "processing") return (
+        <div style={{ display: "flex", alignItems: "center", gap: 5, padding: "3px 10px", borderRadius: 999, backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: "0.1em", whiteSpace: "nowrap" }}>
+            <Clock size={11} />Processing
+        </div>
+    );
+    return (
+        <div style={{ display: "flex", alignItems: "center", gap: 5, padding: "3px 10px", borderRadius: 999, backgroundColor: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.15)", fontSize: 10, fontWeight: 700, color: "rgba(239,68,68,0.7)", textTransform: "uppercase", letterSpacing: "0.1em", whiteSpace: "nowrap" }}>
+            <AlertCircle size={11} />Error
+        </div>
+    );
 }

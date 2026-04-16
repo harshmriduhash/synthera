@@ -1,4 +1,4 @@
-from . import vector_store
+import vector_store
 from typing import List, Dict
 
 class RetrieverAgent:

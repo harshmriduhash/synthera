@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from . import database, models, schemas
-from .agents.coordinator import MultiAgentSystem
-from .agents.decision_agent import DecisionAgent
+import database, models, schemas, auth
+from agents.coordinator import MultiAgentSystem
+from agents.decision_agent import DecisionAgent
 from pydantic import BaseModel
 from typing import List, Optional
 
