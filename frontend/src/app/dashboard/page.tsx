@@ -64,10 +64,10 @@ export default function ChatPage() {
                     {messages.map((msg, i) => (
                         <div key={i} className={`flex gap-4 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                             <div className={`max-w-[80%] rounded-2xl p-6 ${msg.role === 'user'
-                                    ? 'bg-primary text-white'
-                                    : msg.role === 'error'
-                                        ? 'bg-red-500/10 border border-red-500/20 text-red-500'
-                                        : 'bg-white/5 border border-white/10'
+                                ? 'bg-primary text-white'
+                                : msg.role === 'error'
+                                    ? 'bg-red-500/10 border border-red-500/20 text-red-500'
+                                    : 'bg-white/5 border border-white/10'
                                 }`}>
                                 <div className="flex items-center gap-2 mb-2">
                                     {msg.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
@@ -118,21 +118,24 @@ export default function ChatPage() {
             </ScrollArea>
 
             <div className="p-8 border-t border-white/5 pb-12">
-                <div className="max-w-4xl mx-auto relative">
-                    <Input
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                        placeholder="Type your query or strategic question..."
-                        className="h-14 bg-white/5 border-white/10 rounded-xl pl-6 pr-16 focus:ring-primary/50"
-                    />
-                    <Button
-                        onClick={handleSend}
-                        disabled={isLoading || !query.trim()}
-                        className="absolute right-2 top-2 h-10 w-10 p-0 bg-primary hover:bg-primary/90 text-white rounded-lg"
-                    >
-                        <Send className="w-4 h-4" />
-                    </Button>
+                <div className="max-w-4xl mx-auto relative flex gap-4">
+                    <div className="relative flex-1">
+                        <Input
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                            placeholder="Type your query or strategic question..."
+                            className="h-14 bg-white/5 border-white/10 rounded-xl pl-6 pr-16 focus:ring-primary/50"
+                        />
+                        <Button
+                            onClick={handleSend}
+                            disabled={isLoading || !query.trim()}
+                            className="absolute right-2 top-2 h-10 w-10 p-0 bg-primary hover:bg-primary/90 text-white rounded-lg"
+                        >
+                            <Send className="w-4 h-4" />
+                        </Button>
+                    </div>
+                    <VoiceInput onTranscribe={(text) => setQuery(text)} />
                 </div>
                 <p className="text-center text-[10px] text-slate-500 mt-4 uppercase tracking-[0.2em]">
                     Explainable AI · multi-agent reasoning · production grade
@@ -141,3 +144,52 @@ export default function ChatPage() {
         </div>
     );
 }
+
+function VoiceInput({ onTranscribe }: { onTranscribe: (text: string) => void }) {
+    const [isRecording, setIsRecording] = useState(false);
+    const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+
+    const startRecording = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const recorder = new MediaRecorder(stream);
+            const chunks: Blob[] = [];
+
+            recorder.ondataavailable = (e) => chunks.push(e.data);
+            recorder.onstop = async () => {
+                const blob = new Blob(chunks, { type: 'audio/m4a' });
+                const file = new File([blob], 'voice.m4a', { type: 'audio/m4a' });
+
+                try {
+                    const res = await api.upload("/voice/transcribe", file);
+                    if (res.text) onTranscribe(res.text);
+                } catch (err) {
+                    console.error("Transcription failed", err);
+                }
+            };
+
+            recorder.start();
+            setMediaRecorder(recorder);
+            setIsRecording(true);
+        } catch (err) {
+            console.error("Microphone access denied", err);
+        }
+    };
+
+    const stopRecording = () => {
+        mediaRecorder?.stop();
+        setIsRecording(false);
+    };
+
+    return (
+        <Button
+            onClick={isRecording ? stopRecording : startRecording}
+            variant={isRecording ? "destructive" : "outline"}
+            className={`h-14 w-14 rounded-xl border-white/10 ${isRecording ? 'animate-pulse' : 'bg-white/5 hover:bg-white/10'}`}
+        >
+            <Mic className={isRecording ? "animate-bounce" : ""} />
+        </Button>
+    );
+}
+
+import { Mic } from "lucide-react";

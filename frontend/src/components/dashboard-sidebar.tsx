@@ -1,7 +1,7 @@
 "use client";
 
 import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
-import { MessageSquare, Files, Activity, Database, Settings } from "lucide-react";
+import { MessageSquare, Files, Activity, Database, Settings, BarChart3 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -12,6 +12,7 @@ export function DashboardSidebar() {
         { name: "Chat", icon: MessageSquare, path: "/dashboard" },
         { name: "Documents", icon: Files, path: "/dashboard/documents" },
         { name: "Intelligence Feed", icon: Activity, path: "/dashboard/feed" },
+        { name: "Metrics", icon: BarChart3, path: "/dashboard/metrics" },
         { name: "Knowledge Graph", icon: Database, path: "/dashboard/graph" },
         { name: "Settings", icon: Settings, path: "/dashboard/settings" },
     ];
