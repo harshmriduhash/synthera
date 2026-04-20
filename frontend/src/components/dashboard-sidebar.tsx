@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
 import { MessageSquare, Files, Activity, Database, Settings, BarChart3 } from "lucide-react";
 
 const NAV = [
@@ -17,7 +18,10 @@ export function DashboardSidebar() {
     const pathname = usePathname();
 
     return (
-        <aside
+        <motion.aside
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3 }}
             style={{
                 width: "240px",
                 height: "100vh",
@@ -93,6 +97,6 @@ export function DashboardSidebar() {
                     </div>
                 </div>
             </div>
-        </aside>
+        </motion.aside>
     );
 }

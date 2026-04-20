@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Send, User, Bot, Sparkles, Mic } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api";
 
 type Message = { role: "user" | "bot" | "error"; content: string; reasoning?: string; sources?: any[] };
@@ -149,52 +150,65 @@ export default function ChatPage() {
             {/* Messages */}
             <div style={S.messages}>
                 <div style={S.inner}>
-                    {messages.length === 0 && !isLoading && (
-                        <div style={S.emptyState}>
-                            <div style={S.emptyIcon}><Sparkles size={26} color="rgba(255,255,255,0.28)" /></div>
-                            <div>
-                                <p style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "rgba(255,255,255,0.78)" }}>Ready for Analysis</p>
-                                <p style={{ margin: "8px 0 0", fontSize: 14, color: "rgba(255,255,255,0.3)", lineHeight: 1.6 }}>
-                                    Upload documents to the vault then ask anything about your financial data.
-                                </p>
-                            </div>
-                            <div style={S.suggestions}>
-                                {["Summarize key risks", "Extract KPIs", "Identify market trends"].map(s => (
-                                    <button key={s} style={S.suggBtn} onClick={() => setQuery(s)}>{s}</button>
-                                ))}
-                            </div>
-                        </div>
-                    )}
+                    <AnimatePresence mode="popLayout">
+                        {messages.length === 0 && !isLoading && (
+                            <motion.div
+                                key="empty"
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                style={S.emptyState}
+                            >
+                                <div style={S.emptyIcon}><Sparkles size={26} color="rgba(255,255,255,0.28)" /></div>
+                                <div>
+                                    <p style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "rgba(255,255,255,0.78)" }}>Ready for Analysis</p>
+                                    <p style={{ margin: "8px 0 0", fontSize: 14, color: "rgba(255,255,255,0.3)", lineHeight: 1.6 }}>
+                                        Upload documents to the vault then ask anything about your financial data.
+                                    </p>
+                                </div>
+                                <div style={S.suggestions}>
+                                    {["Summarize key risks", "Extract KPIs", "Identify market trends"].map(s => (
+                                        <button key={s} style={S.suggBtn} onClick={() => setQuery(s)}>{s}</button>
+                                    ))}
+                                </div>
+                            </motion.div>
+                        )}
 
-                    {messages.map((msg, i) => (
-                        <div key={i}>
-                            <div style={S.msgRow(msg.role === "user")}>
-                                <div style={S.avatar(msg.role === "user")}>
-                                    {msg.role === "user"
-                                        ? <User size={15} color="#000" />
-                                        : <Bot size={15} color="rgba(255,255,255,0.5)" />
-                                    }
+                        {messages.map((msg, i) => (
+                            <motion.div
+                                key={i}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.4, ease: "easeOut" }}
+                            >
+                                <div style={S.msgRow(msg.role === "user")}>
+                                    <div style={S.avatar(msg.role === "user")}>
+                                        {msg.role === "user"
+                                            ? <User size={15} color="#000" />
+                                            : <Bot size={15} color="rgba(255,255,255,0.5)" />
+                                        }
+                                    </div>
+                                    <div style={S.bubble(msg.role)}>{msg.content}</div>
                                 </div>
-                                <div style={S.bubble(msg.role)}>{msg.content}</div>
-                            </div>
-                            {msg.reasoning && (
-                                <div style={S.reasoning}>
-                                    <p style={{ margin: "0 0 6px", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.25)", letterSpacing: "0.15em", textTransform: "uppercase" }}>Reasoning Trace</p>
-                                    <p style={{ margin: 0, fontSize: 13, color: "rgba(255,255,255,0.4)", fontStyle: "italic", lineHeight: 1.65 }}>{msg.reasoning}</p>
-                                    {msg.sources && msg.sources.length > 0 && (
-                                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 10 }}>
-                                            {msg.sources.map((s: any, j: number) => (
-                                                <div key={j} style={{ padding: "10px 12px", borderRadius: 8, backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                                                    <p style={{ margin: "0 0 4px", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.3)" }}>Page {s.page}</p>
-                                                    <p style={{ margin: 0, fontSize: 12, color: "rgba(255,255,255,0.25)", overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as any }}>{s.snippet}</p>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    ))}
+                                {msg.reasoning && (
+                                    <div style={S.reasoning}>
+                                        <p style={{ margin: "0 0 6px", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.25)", letterSpacing: "0.15em", textTransform: "uppercase" }}>Reasoning Trace</p>
+                                        <p style={{ margin: 0, fontSize: 13, color: "rgba(255,255,255,0.4)", fontStyle: "italic", lineHeight: 1.65 }}>{msg.reasoning}</p>
+                                        {msg.sources && msg.sources.length > 0 && (
+                                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 10 }}>
+                                                {msg.sources.map((s: any, j: number) => (
+                                                    <div key={j} style={{ padding: "10px 12px", borderRadius: 8, backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                                                        <p style={{ margin: "0 0 4px", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.3)" }}>Page {s.page}</p>
+                                                        <p style={{ margin: 0, fontSize: 12, color: "rgba(255,255,255,0.25)", overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as any }}>{s.snippet}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
 
                     {isLoading && (
                         <div style={S.msgRow(false)}>
