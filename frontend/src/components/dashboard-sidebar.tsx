@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { MessageSquare, Files, Activity, Database, Settings, BarChart3 } from "lucide-react";
+import { MessageSquare, Files, Activity, Database, Settings, BarChart3, LogOut } from "lucide-react";
+import { SignOutButton } from "@clerk/nextjs";
 
 const NAV = [
     { label: "Chat", icon: MessageSquare, href: "/dashboard" },
@@ -78,6 +79,34 @@ export function DashboardSidebar() {
                         </Link>
                     );
                 })}
+
+                {/* Logout Button */}
+                <SignOutButton>
+                    <div
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                            padding: "10px 12px",
+                            marginTop: "8px",
+                            borderRadius: "10px",
+                            cursor: "pointer",
+                            color: "rgba(255,255,255,0.38)",
+                            transition: "background-color 0.15s, color 0.15s",
+                        }}
+                        onMouseEnter={e => {
+                            e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.04)";
+                            e.currentTarget.style.color = "rgba(255,255,255,0.8)";
+                        }}
+                        onMouseLeave={e => {
+                            e.currentTarget.style.backgroundColor = "transparent";
+                            e.currentTarget.style.color = "rgba(255,255,255,0.38)";
+                        }}
+                    >
+                        <LogOut size={16} style={{ flexShrink: 0 }} />
+                        <span style={{ fontSize: 13, fontWeight: 500 }}>Logout</span>
+                    </div>
+                </SignOutButton>
             </nav>
 
             {/* Status badge */}
