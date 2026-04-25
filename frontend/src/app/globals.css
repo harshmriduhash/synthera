@@ -145,4 +145,79 @@
     opacity: 1;
     transform: translateY(0);
   }
+/* ── Clerk Overrides ────────────────────────────────── */
+.cl-rootBox {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.cl-card {
+  background-color: #111111 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+}
+
+.cl-headerTitle {
+  color: white !important;
+  font-weight: 700 !important;
+}
+
+.cl-headerSubtitle {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.cl-socialButtonsBlockButton {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+}
+
+.cl-socialButtonsBlockButton:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.cl-dividerLine {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.cl-dividerText {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.cl-formFieldLabel {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.cl-formFieldInput {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+}
+
+.cl-footer {
+  background-color: #111111 !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.cl-footerActionText {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.cl-footerActionLink {
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+.cl-footerActionLink:hover {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.cl-identityPreviewText {
+  color: white !important;
+}
+
+.cl-userButtonPopoverCard {
+  background-color: #111111 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
