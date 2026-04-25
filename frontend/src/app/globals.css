@@ -145,6 +145,8 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
 /* ── Clerk Overrides ────────────────────────────────── */
 .cl-rootBox {
   width: 100%;
