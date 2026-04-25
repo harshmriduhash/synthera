@@ -24,6 +24,7 @@ async def transcribe_audio(file: UploadFile = File(...)):
         )
         return {"text": transcript.text}
     except Exception as e:
+        print(f"Transcription error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         os.remove(tmp_path)

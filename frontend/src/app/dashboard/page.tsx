@@ -91,11 +91,11 @@ export default function ChatPage() {
 
     useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, isLoading]);
 
-    const send = async () => {
-        if (!query.trim() || isLoading) return;
-        const q = query;
+    const send = async (qOverride?: string) => {
+        const q = qOverride || query;
+        if (!q.trim() || isLoading) return;
         setMessages(p => [...p, { role: "user", content: q }]);
-        setQuery("");
+        if (!qOverride) setQuery("");
         setIsLoading(true);
         try {
             const res = await api.post("/chat/query", { query: q });
@@ -107,6 +107,8 @@ export default function ChatPage() {
         }
     };
 
+    const [isTranscribing, setIsTranscribing] = useState(false);
+
     const toggleMic = async () => {
         if (isRecording && recorder) {
             recorder.stop();
@@ -116,21 +118,44 @@ export default function ChatPage() {
         }
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            const rec = new MediaRecorder(stream);
+
+            // Detect supported mime type
+            const types = ["audio/webm", "audio/mp4", "audio/ogg", "audio/wav"];
+            const mimeType = types.find(t => MediaRecorder.isTypeSupported(t)) || "";
+
+            const rec = new MediaRecorder(stream, mimeType ? { mimeType } : {});
             const chunks: Blob[] = [];
-            rec.ondataavailable = e => chunks.push(e.data);
+
+            rec.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+
             rec.onstop = async () => {
+                setIsTranscribing(true);
                 try {
-                    const blob = new Blob(chunks, { type: "audio/m4a" });
-                    const file = new File([blob], "voice.m4a", { type: "audio/m4a" });
+                    const blob = new Blob(chunks, { type: rec.mimeType || "audio/webm" });
+                    const ext = rec.mimeType?.split("/")[1]?.split(";")[0] || "webm";
+                    const file = new File([blob], `voice.${ext}`, { type: blob.type });
+
                     const res = await api.upload("/voice/transcribe", file);
-                    if (res.text) setQuery(prev => prev + res.text);
-                } catch { /* silent */ }
+                    if (res.text) {
+                        setQuery(res.text);
+                        // Optional: Automatically send if transcription is successful and significant
+                        if (res.text.trim().length > 5) {
+                            setTimeout(() => send(res.text), 100);
+                        }
+                    }
+                } catch (err) {
+                    console.error("Transcription failed:", err);
+                } finally {
+                    setIsTranscribing(false);
+                }
             };
+
             rec.start();
             setRecorder(rec);
             setIsRecording(true);
-        } catch { /* mic denied */ }
+        } catch (err) {
+            console.error("Mic access denied or error:", err);
+        }
     };
 
     return (
@@ -229,6 +254,11 @@ export default function ChatPage() {
 
             {/* Input */}
             <div style={S.inputArea}>
+                {isTranscribing && (
+                    <div style={{ position: "absolute", top: -24, left: 24, fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,0.3)", letterSpacing: "0.1em", display: "flex", alignItems: "center", gap: 6 }}>
+                        <div className="dot-pulse" /><div className="dot-pulse" /><div className="dot-pulse" /> TRANSCRIBING VOICE
+                    </div>
+                )}
                 <div style={S.inputRow}>
                     <textarea
                         style={S.textarea}
@@ -250,7 +280,7 @@ export default function ChatPage() {
                     >
                         <Mic size={16} />
                     </button>
-                    <button style={S.sendBtn(!query.trim() || isLoading)} onClick={send} disabled={!query.trim() || isLoading}>
+                    <button style={S.sendBtn(!query.trim() || isLoading)} onClick={() => send()} disabled={!query.trim() || isLoading}>
                         <Send size={16} />
                     </button>
                 </div>
