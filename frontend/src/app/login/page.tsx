@@ -23,18 +23,20 @@ export default function LoginPage() {
                     appearance={{
                         elements: {
                             rootBox: "font-sans",
-                            card: "bg-[#121212] border border-white/10 rounded-2xl shadow-2xl shadow-white/5",
-                            headerTitle: "text-white text-2xl font-bold tracking-tight",
-                            headerSubtitle: "text-white/60",
+                            card: "bg-[#1a1a1a] border border-white/10 rounded-2xl shadow-2xl shadow-white/5",
+                            headerTitle: "text-white text-2xl font-bold tracking-tight opacity-100",
+                            headerSubtitle: "text-white/70",
                             socialButtonsBlockButton: "bg-white/5 border-white/10 text-white hover:bg-white/10 transition-colors",
                             formButtonPrimary: "bg-white text-black hover:bg-white/90 font-bold transition-all",
                             dividerLine: "bg-white/10",
-                            dividerText: "text-white/40 font-medium",
-                            formFieldLabel: "text-white/80 font-medium",
-                            formFieldInput: "bg-white/5 border-white/10 text-white focus:border-white/30 transition-all",
-                            footerActionText: "text-white/60",
-                            footerActionLink: "text-white font-semibold hover:text-white/80 transition-colors",
-                            footer: "bg-transparent", // Ensure footer is transparent to inherit card bg
+                            dividerText: "text-white/50 font-medium",
+                            formFieldLabel: "text-white/90 font-medium",
+                            formFieldInput: "bg-white/5 border-white/20 text-white focus:border-white/40 transition-all",
+                            footer: "bg-[#1a1a1a] border-t border-white/5",
+                            footerActionText: "text-white/70",
+                            footerActionLink: "text-white font-bold hover:text-white/80 transition-colors",
+                            identityPreviewText: "text-white",
+                            identityPreviewEditButton: "text-white/60 hover:text-white",
                         }
                     }}
                     signUpUrl="/signup"
