@@ -16,11 +16,25 @@ class ChatRequest(BaseModel):
 
 @router.post("/query")
 async def handle_query(request: ChatRequest, db: Session = Depends(database.get_db)):
-    # user_id = 1
+    import time
+    start_time = time.time()
     
     # Run multi-agent system
     try:
         result = agent_system.query(request.query)
+        latency = time.time() - start_time
+        
+        # Log to AuditLog
+        new_log = models.AuditLog(
+            user_id=1,
+            query=request.query,
+            latency=latency,
+            validation_score=0.95, # Mock for now
+            token_usage=len(request.query) * 4 # Rough estimate
+        )
+        db.add(new_log)
+        db.commit()
+        
         return result
     except Exception as e:
         print(f"Chat error: {e}")
@@ -30,6 +44,11 @@ async def handle_query(request: ChatRequest, db: Session = Depends(database.get_
             "reasoning": str(e),
             "sources": []
         }
+
+@router.get("/metrics")
+def get_metrics(db: Session = Depends(database.get_db)):
+    logs = db.query(models.AuditLog).order_by(models.AuditLog.created_at.desc()).limit(50).all()
+    return logs
 
 @router.post("/decide")
 async def handle_decision(request: ChatRequest, db: Session = Depends(database.get_db)):

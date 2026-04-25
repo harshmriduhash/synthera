@@ -9,14 +9,20 @@ class ScraperAgent:
         self.search = TavilySearchResults(api_key=os.getenv("TAVILY_API_KEY")) if os.getenv("TAVILY_API_KEY") else None
         self.llm = ChatOpenAI(model="gpt-4o-mini", api_key=os.getenv("OPENAI_API_KEY"))
         self.prompt = ChatPromptTemplate.from_template("""
-        You are a research analyst. 
-        Supplement the following information with real-time data found online.
+        You are a senior financial research analyst. 
+        Your goal is to provide high-fidelity, real-time intelligence by supplementing internal document context with external web data.
         
-        Original Context: {context}
-        Query: {query}
-        External Data: {external_data}
+        INTERNAL CONTEXT: {context}
+        USER QUERY: {query}
+        EXTERNAL SEARCH DATA: {external_data}
         
-        Synthesize a comprehensive report.
+        TASKS:
+        1. If external data is available, cross-reference it with internal context.
+        2. Identify any contradictions or newer information in the external data.
+        3. Synthesize a unified, concise strategic insight.
+        4. If no external data is found, rely solely on internal context but note the limitation.
+        
+        Output format: Clear, professional markdown.
         """)
 
     def run(self, query: str, context: str) -> str:
