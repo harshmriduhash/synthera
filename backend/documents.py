@@ -83,3 +83,12 @@ def list_entities(db: Session = Depends(database.get_db)):
 @router.get("/relations")
 def list_relations(db: Session = Depends(database.get_db)):
     return db.query(models.Relation).all()
+@router.get("/graph")
+def get_graph_data(db: Session = Depends(database.get_db)):
+    entities = db.query(models.Entity).all()
+    relations = db.query(models.Relation).all()
+    
+    return {
+        "nodes": [{"id": e.name, "label": e.name, "type": e.type} for e in entities],
+        "links": [{"source": r.subject, "target": r.object, "label": r.relation} for r in relations]
+    }

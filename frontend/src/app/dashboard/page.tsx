@@ -243,7 +243,13 @@ export default function ChatPage() {
                         }}
                         onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
                     />
-                    <button style={S.micBtn(isRecording)} onClick={toggleMic}><Mic size={16} /></button>
+                    <button
+                        style={S.micBtn(isRecording)}
+                        className={isRecording ? "mic-active" : ""}
+                        onClick={toggleMic}
+                    >
+                        <Mic size={16} />
+                    </button>
                     <button style={S.sendBtn(!query.trim() || isLoading)} onClick={send} disabled={!query.trim() || isLoading}>
                         <Send size={16} />
                     </button>

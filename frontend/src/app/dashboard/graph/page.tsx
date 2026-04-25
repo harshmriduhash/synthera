@@ -1,113 +1,197 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Layers, Share2, Zap } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
+import { Share2, Network, ZoomIn, ZoomOut, Maximize2 } from "lucide-react";
 import { api } from "@/lib/api";
 
-const PAGE = { display: "flex", flexDirection: "column" as const, height: "100%", overflow: "hidden", backgroundColor: "#0a0a0a" };
-const HEADER = { flexShrink: 0, padding: "20px 32px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between", backgroundColor: "rgba(0,0,0,0.4)" };
-const SCROLL = { flex: 1, overflowY: "auto" as const, overflowX: "hidden" as const, minHeight: 0, padding: "28px 32px" };
-const INNER = { maxWidth: 900, margin: "0 auto", display: "flex", flexDirection: "column" as const, gap: 24 };
-const CARD = { padding: "24px", borderRadius: 14, backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" };
+const S = {
+    page: { display: "flex", flexDirection: "column" as const, height: "100%", overflow: "hidden", backgroundColor: "#0a0a0a" },
+    header: {
+        flexShrink: 0, padding: "20px 32px", borderBottom: "1px solid rgba(255,255,255,0.06)",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        backgroundColor: "rgba(0,0,0,0.4)", backdropFilter: "blur(12px)", zIndex: 10
+    },
+    title: { margin: 0, fontSize: 17, fontWeight: 700, color: "rgba(255,255,255,0.88)" },
+    subtitle: { margin: 0, fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.28)", letterSpacing: "0.2em", textTransform: "uppercase" as const },
+    container: { flex: 1, position: "relative" as const, overflow: "hidden", cursor: "grab" },
+    canvas: { display: "block" },
+    toolbar: {
+        position: "absolute" as const, bottom: 24, left: "50%", transform: "translateX(-50%)",
+        display: "flex", gap: 8, padding: "8px", borderRadius: 14,
+        backgroundColor: "rgba(15,15,15,0.8)", border: "1px solid rgba(255,255,255,0.08)",
+        backdropFilter: "blur(16px)", zIndex: 20
+    },
+    toolBtn: {
+        width: 38, height: 38, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center",
+        backgroundColor: "transparent", color: "rgba(255,255,255,0.4)", border: "none", cursor: "pointer", transition: "all 0.2s"
+    },
+    legend: {
+        position: "absolute" as const, top: 24, right: 24, padding: "16px", borderRadius: 16,
+        backgroundColor: "rgba(15,15,15,0.5)", border: "1px solid rgba(255,255,255,0.06)",
+        backdropFilter: "blur(12px)", zIndex: 20
+    },
+    legendItem: { display: "flex", alignItems: "center", gap: 10, marginBottom: 8 },
+    legendDot: (color: string) => ({ width: 8, height: 8, borderRadius: "50%", backgroundColor: color }),
+    legendText: { fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.4)" }
+};
 
-const labelStyle = { margin: "0 0 12px", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.25)", letterSpacing: "0.2em", textTransform: "uppercase" as const };
+const COLORS: Record<string, string> = {
+    Company: "#ffffff",
+    Person: "#6366f1",
+    Metric: "#10b981",
+    Date: "#f59e0b",
+    default: "#94a3b8"
+};
 
 export default function GraphPage() {
-    const [entities, setEntities] = useState<any[]>([]);
-    const [relations, setRelations] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [graphData, setGraphData] = useState<{ nodes: any[], links: any[] }>({ nodes: [], links: [] });
+    const [zoom, setZoom] = useState(1);
+    const [offset, setOffset] = useState({ x: 0, y: 0 });
+    const [isDragging, setIsDragging] = useState(false);
+    const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
     useEffect(() => {
-        const load = async () => {
+        const fetchGraph = async () => {
             try {
-                const [e, r] = await Promise.all([api.get("/documents/entities"), api.get("/documents/relations")]);
-                setEntities(e);
-                setRelations(r);
-            } catch {/* silent */ } finally {
-                setLoading(false);
+                const res = await api.get("/documents/graph");
+                // deduplicate nodes
+                const uniqueNodes = Array.from(new Map(res.nodes.map((n: any) => [n.id, n])).values());
+                setGraphData({ nodes: uniqueNodes, links: res.links });
+            } catch (err) {
+                console.error("Failed to fetch graph data:", err);
             }
         };
-        load();
+        fetchGraph();
     }, []);
 
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas || graphData.nodes.length === 0) return;
+
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+
+        // Resize
+        const resize = () => {
+            if (!containerRef.current) return;
+            canvas.width = containerRef.current.clientWidth * window.devicePixelRatio;
+            canvas.height = containerRef.current.clientHeight * window.devicePixelRatio;
+            canvas.style.width = containerRef.current.clientWidth + "px";
+            canvas.style.height = containerRef.current.clientHeight + "px";
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        };
+        resize();
+        window.addEventListener("resize", resize);
+
+        // Simple force-directed layout simulation (placeholder for real physics)
+        const nodes = graphData.nodes.map((n, i) => ({
+            ...n,
+            x: n.x || (Math.random() - 0.5) * 500 + canvas.width / (2 * window.devicePixelRatio),
+            y: n.y || (Math.random() - 0.5) * 500 + canvas.height / (2 * window.devicePixelRatio)
+        }));
+
+        let animationFrame: number;
+        const render = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+            ctx.translate(offset.x, offset.y);
+            ctx.scale(zoom, zoom);
+
+            // Draw Links
+            ctx.beginPath();
+            ctx.strokeStyle = "rgba(255,255,255,0.06)";
+            ctx.lineWidth = 1;
+            graphData.links.forEach(l => {
+                const s = nodes.find(n => n.id === l.source);
+                const t = nodes.find(n => n.id === l.target);
+                if (s && t) {
+                    ctx.moveTo(s.x, s.y);
+                    ctx.lineTo(t.x, t.y);
+                }
+            });
+            ctx.stroke();
+
+            // Draw Nodes
+            nodes.forEach(n => {
+                const color = COLORS[n.type] || COLORS.default;
+                ctx.beginPath();
+                ctx.fillStyle = color;
+                ctx.arc(n.x, n.y, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Labels
+                ctx.fillStyle = "rgba(255,255,255,0.5)";
+                ctx.font = "bold 9px Inter, sans-serif";
+                ctx.textAlign = "center";
+                ctx.fillText(n.label, n.x, n.y + 16);
+            });
+
+            ctx.restore();
+            animationFrame = requestAnimationFrame(render);
+        };
+        render();
+
+        return () => {
+            window.removeEventListener("resize", resize);
+            cancelAnimationFrame(animationFrame);
+        };
+    }, [graphData, zoom, offset]);
+
+    const handleMouseDown = (e: React.MouseEvent) => {
+        setIsDragging(true);
+        setDragStart({ x: e.clientX - offset.x, y: e.clientY - offset.y });
+    };
+
+    const handleMouseMove = (e: React.MouseEvent) => {
+        if (!isDragging) return;
+        setOffset({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y });
+    };
+
+    const handleMouseUp = () => setIsDragging(false);
+
     return (
-        <div style={PAGE}>
-            <div style={HEADER}>
+        <div style={S.page}>
+            <div style={S.header}>
                 <div>
-                    <p style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "rgba(255,255,255,0.88)" }}>Knowledge Graph</p>
-                    <p style={{ margin: "3px 0 0", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.28)", letterSpacing: "0.2em", textTransform: "uppercase" }}>Entity & Relation Map</p>
+                    <h1 style={S.title}>Knowledge Synapse</h1>
+                    <p style={S.subtitle}>Relational Intelligence Map</p>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 14px", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 999, backgroundColor: "rgba(255,255,255,0.03)", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.3)", letterSpacing: "0.15em", textTransform: "uppercase" }}>
-                    <Zap size={12} />Live
+                <div style={{ display: "flex", gap: 12 }}>
+                    <button style={{ ...S.toolBtn, backgroundColor: "rgba(255,255,255,0.05)", width: "auto", padding: "0 16px", fontSize: 12, fontWeight: 700, color: "white" }}>
+                        <Share2 size={14} style={{ marginRight: 8 }} /> Share Graph
+                    </button>
                 </div>
             </div>
 
-            <div style={SCROLL}>
-                <div style={INNER}>
-                    {/* Stats */}
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
-                        {[
-                            { label: "Total Nodes", val: loading ? "…" : entities.length, Icon: Layers },
-                            { label: "Relations", val: loading ? "…" : relations.length, Icon: Share2 },
-                            { label: "Confidence", val: "98.4%", Icon: Zap },
-                        ].map(({ label, val, Icon }) => (
-                            <div key={label} style={CARD}>
-                                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-                                    <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.28)", letterSpacing: "0.15em", textTransform: "uppercase" }}>{label}</span>
-                                    <Icon size={14} color="rgba(255,255,255,0.2)" />
-                                </div>
-                                <p style={{ margin: 0, fontSize: 28, fontWeight: 900, color: "rgba(255,255,255,0.82)", letterSpacing: "-0.03em" }}>{val}</p>
-                            </div>
-                        ))}
-                    </div>
+            <div
+                ref={containerRef}
+                style={S.container}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
+            >
+                <canvas ref={canvasRef} style={S.canvas} />
 
-                    {/* Two-column panels */}
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1.6fr", gap: 18 }}>
-                        {/* Nodes */}
-                        <div style={CARD}>
-                            <p style={labelStyle}>Extracted Nodes</p>
-                            {loading ? (
-                                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                                    {[...Array(5)].map((_, i) => <div key={i} className="skeleton" style={{ height: 40 }} />)}
-                                </div>
-                            ) : entities.length === 0 ? (
-                                <p style={{ fontSize: 12, color: "rgba(255,255,255,0.2)", textAlign: "center", padding: "32px 0" }}>No nodes yet — upload documents first.</p>
-                            ) : (
-                                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                                    {entities.map((e, i) => (
-                                        <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 10px", borderRadius: 8, backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)" }}>
-                                            <span style={{ fontSize: 13, fontWeight: 500, color: "rgba(255,255,255,0.72)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, marginRight: 8 }}>{e.name}</span>
-                                            <span style={{ fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.1em", border: "1px solid rgba(255,255,255,0.07)", padding: "2px 7px", borderRadius: 5, flexShrink: 0 }}>{e.type}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
+                <div style={S.legend}>
+                    <p style={{ margin: "0 0 12px", fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,0.2)", letterSpacing: "0.1em", textTransform: "uppercase" }}>Entity Node Index</p>
+                    {Object.entries(COLORS).map(([type, color]) => type !== 'default' && (
+                        <div key={type} style={S.legendItem}>
+                            <span style={S.legendDot(color)} />
+                            <span style={S.legendText}>{type}</span>
                         </div>
+                    ))}
+                </div>
 
-                        {/* Relations */}
-                        <div style={CARD}>
-                            <p style={labelStyle}>Active Synapses</p>
-                            {loading ? (
-                                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                                    {[...Array(4)].map((_, i) => <div key={i} className="skeleton" style={{ height: 60 }} />)}
-                                </div>
-                            ) : relations.length === 0 ? (
-                                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 160, border: "1.5px dashed rgba(255,255,255,0.08)", borderRadius: 10 }}>
-                                    <p style={{ fontSize: 12, color: "rgba(255,255,255,0.2)", textAlign: "center" }}>No relations identified yet.</p>
-                                </div>
-                            ) : (
-                                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                                    {relations.map((r, i) => (
-                                        <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 10, backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)", overflow: "hidden" }}>
-                                            <span style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.75)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.subject}</span>
-                                            <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.25)", textTransform: "uppercase", letterSpacing: "0.1em", flexShrink: 0, whiteSpace: "nowrap" }}>→ {r.relation} →</span>
-                                            <span style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.55)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textAlign: "right" }}>{r.object}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    </div>
+                <div style={S.toolbar}>
+                    <button style={S.toolBtn} onClick={() => setZoom(z => Math.min(z + 0.2, 3))}><ZoomIn size={18} /></button>
+                    <button style={S.toolBtn} onClick={() => setZoom(z => Math.max(z - 0.2, 0.5))}><ZoomOut size={18} /></button>
+                    <button style={S.toolBtn} onClick={() => { setZoom(1); setOffset({ x: 0, y: 0 }); }}><Maximize2 size={18} /></button>
+                    <div style={{ width: 1, height: 24, backgroundColor: "rgba(255,255,255,0.08)", margin: "0 4px" }} />
+                    <button style={S.toolBtn}><Network size={18} /></button>
                 </div>
             </div>
         </div>

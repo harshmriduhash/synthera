@@ -58,3 +58,12 @@ class Relation(Base):
     subject = Column(String)
     relation = Column(String)
     object = Column(String)
+class AuditLog(Base):
+    __tablename__ = "audit_logs"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    query = Column(Text)
+    latency = Column(Float)
+    validation_score = Column(Float)
+    token_usage = Column(Integer)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
