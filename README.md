@@ -68,26 +68,29 @@ Synthera operates on a **Decoupled Agentic Pattern**:
 
 ## 📦 Getting Started
 
-### Prerequisites
-- Python 3.10+
-- Node.js 18+
-- OpenAI API Key
+### 1. Configure APIs
+Synthera requires several API keys to function (Clerk, OpenAI, Tavily). 
+Refer to [API_CONFIG.md](API_CONFIG.md) in the project root for a full list and placeholders.
 
-### Backend Setup
+### 2. Backend Setup
+The backend is a FastAPI application that handles document processing and agent reasoning.
 ```bash
 cd backend
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-# Set environment variables in .env
+# Copy .env.example to .env and add your keys
+cp .env.example .env
 uvicorn main:app --reload
 ```
 
-### Frontend Setup
+### 3. Frontend Setup
+The frontend is a Next.js application with Clerk authentication.
 ```bash
 cd frontend
 npm install
-# Set NEXT_PUBLIC_API_URL in .env.local
+# Copy .env.example to .env.local and add your keys
+cp .env.example .env.local
 npm run dev
 ```
 
@@ -96,6 +99,8 @@ npm run dev
 ## 📊 Roadmap
 
 - [x] **V1 (MVP)**: Core RAG, Multi-Agent System, Document Pipeline, Explainability.
+- [x] **Clerk Auth**: Secure authentication with custom dark theme.
+- [x] **Catch-all Routes**: Fixed routing for seamless login/signup experience.
 - [ ] **V1.5**: Integrated Voice AI (mic input), Shared Knowledge Graphs.
 - [ ] **V2.0**: Real-time external scraping, Advanced Eval Dashboard, Enterprise SSO.
 
@@ -105,7 +110,7 @@ npm run dev
 
 Synthera implements Enterprise-grade security out of the box:
 - **AES-256** encryption for document storage.
-- **RLS** (Row Level Security) at the database layer.
+- **JWT-based Auth** for secure API communication.
 - **Audit Logs** for every AI interaction.
 - **PII Redaction** during chunking.
 
