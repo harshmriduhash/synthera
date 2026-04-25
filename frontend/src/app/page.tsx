@@ -1,6 +1,10 @@
 import Link from "next/link";
+import { UserButton } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const { userId } = await auth();
+
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", backgroundColor: "#080808", color: "#fff", fontFamily: "inherit" }}>
       {/* Nav */}
@@ -17,10 +21,19 @@ export default function LandingPage() {
           </nav>
 
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <Link href="/login" style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.38)", textDecoration: "none" }}>Login</Link>
-            <Link href="/dashboard" style={{ display: "inline-block", padding: "8px 20px", backgroundColor: "#fff", color: "#000", fontWeight: 700, fontSize: 12, borderRadius: 9, textDecoration: "none", letterSpacing: "0.04em" }}>
-              Get Started
-            </Link>
+            {!userId ? (
+              <>
+                <Link href="/login" style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.38)", textDecoration: "none" }}>Login</Link>
+                <Link href="/dashboard" style={{ display: "inline-block", padding: "8px 20px", backgroundColor: "#fff", color: "#000", fontWeight: 700, fontSize: 12, borderRadius: 9, textDecoration: "none", letterSpacing: "0.04em" }}>
+                  Get Started
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/dashboard" style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.38)", textDecoration: "none" }}>Dashboard</Link>
+                <UserButton />
+              </>
+            )}
           </div>
         </div>
       </header>

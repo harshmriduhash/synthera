@@ -19,14 +19,17 @@ async def handle_query(request: ChatRequest, db: Session = Depends(database.get_
     # user_id = 1
     
     # Run multi-agent system
-    result = agent_system.query(request.query)
-    
-    # Save query to DB
-    # db_query = models.Query(user_id=1, query_text=request.query, response_text=result["answer"])
-    # db.add(db_query)
-    # db.commit()
-    
-    return result
+    try:
+        result = agent_system.query(request.query)
+        return result
+    except Exception as e:
+        print(f"Chat error: {e}")
+        return {
+            "answer": "I'm currently in offline mode because the reasoning layer (OpenAI API) is not configured with a valid key. Please check your .env file.",
+            "validation": "System check failed: Authentication Error",
+            "reasoning": str(e),
+            "sources": []
+        }
 
 @router.post("/decide")
 async def handle_decision(request: ChatRequest, db: Session = Depends(database.get_db)):
