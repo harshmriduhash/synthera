@@ -254,11 +254,18 @@ export default function ChatPage() {
 
             {/* Input */}
             <div style={S.inputArea}>
-                {isTranscribing && (
-                    <div style={{ position: "absolute", top: -24, left: 24, fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,0.3)", letterSpacing: "0.1em", display: "flex", alignItems: "center", gap: 6 }}>
-                        <div className="dot-pulse" /><div className="dot-pulse" /><div className="dot-pulse" /> TRANSCRIBING VOICE
-                    </div>
-                )}
+                <div style={{ height: 20, marginBottom: 4, display: "flex", alignItems: "center", gap: 12, paddingLeft: 8 }}>
+                    {isRecording && (
+                        <div style={{ fontSize: 10, fontWeight: 800, color: "#ef4444", letterSpacing: "0.1em", display: "flex", alignItems: "center", gap: 6 }}>
+                            <div className="mic-active" style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: "#ef4444" }} /> RECORDING AUDIO
+                        </div>
+                    )}
+                    {isTranscribing && (
+                        <div style={{ fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,0.4)", letterSpacing: "0.1em", display: "flex", alignItems: "center", gap: 6 }}>
+                            <div className="dot-pulse" /><div className="dot-pulse" /><div className="dot-pulse" /> TRANSCRIBING...
+                        </div>
+                    )}
+                </div>
                 <div style={S.inputRow}>
                     <textarea
                         style={S.textarea}
