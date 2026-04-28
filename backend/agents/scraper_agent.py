@@ -1,11 +1,11 @@
-from langchain_community.tools.tavily_search import TavilySearchResults
+from langchain_tavily import TavilySearch
 from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 import os
 
 class ScraperAgent:
     def __init__(self):
-        self.search = TavilySearchResults(api_key=os.getenv("TAVILY_API_KEY")) if os.getenv("TAVILY_API_KEY") else None
+        self.search = TavilySearch(api_key=os.getenv("TAVILY_API_KEY"), max_results=5) if os.getenv("TAVILY_API_KEY") else None
         self.llm = ChatGroq(model="llama3-70b-8192", api_key=os.getenv("GROQ_API_KEY"))
         self.prompt = ChatPromptTemplate.from_template("""
         You are a senior financial research analyst. 
