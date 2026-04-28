@@ -1,13 +1,12 @@
 from langchain_community.tools.tavily_search import TavilySearchResults
-from langchain_openai import ChatOpenAI
+from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 import os
 
 class ScraperAgent:
     def __init__(self):
-        # Fallback to a simple search if Tavily is not configured
         self.search = TavilySearchResults(api_key=os.getenv("TAVILY_API_KEY")) if os.getenv("TAVILY_API_KEY") else None
-        self.llm = ChatOpenAI(model="gpt-4o-mini", api_key=os.getenv("OPENAI_API_KEY"))
+        self.llm = ChatGroq(model="llama3-70b-8192", api_key=os.getenv("GROQ_API_KEY"))
         self.prompt = ChatPromptTemplate.from_template("""
         You are a senior financial research analyst. 
         Your goal is to provide high-fidelity, real-time intelligence by supplementing internal document context with external web data.

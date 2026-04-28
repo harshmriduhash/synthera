@@ -1,28 +1,30 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException
 import os
-from openai import OpenAI
 import tempfile
+from groq import Groq
 
 router = APIRouter()
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 @router.post("/transcribe")
 async def transcribe_audio(file: UploadFile = File(...)):
-    if not os.getenv("OPENAI_API_KEY"):
-        raise HTTPException(status_code=500, detail="OpenAI API key not configured")
+    if not os.getenv("GROQ_API_KEY"):
+        raise HTTPException(status_code=500, detail="Groq API key not configured")
     
     # Save temp file
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".m4a") as tmp:
+    suffix = "." + (file.filename.split(".")[-1] if file.filename and "." in file.filename else "webm")
+    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
         tmp.write(await file.read())
         tmp_path = tmp.name
     
     try:
-        audio_file = open(tmp_path, "rb")
-        transcript = client.audio.transcriptions.create(
-            model="whisper-1", 
-            file=audio_file
-        )
-        return {"text": transcript.text}
+        with open(tmp_path, "rb") as audio_file:
+            transcript = client.audio.transcriptions.create(
+                model="whisper-large-v3",
+                file=audio_file,
+                response_format="text"
+            )
+        return {"text": transcript}
     except Exception as e:
         print(f"Transcription error: {e}")
         raise HTTPException(status_code=500, detail=str(e))

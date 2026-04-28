@@ -1,4 +1,4 @@
-from langchain_openai import ChatOpenAI
+from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from typing import List, Dict
 import os
@@ -6,7 +6,7 @@ import json
 
 class EntityAgent:
     def __init__(self):
-        self.llm = ChatOpenAI(model="gpt-4o-mini", api_key=os.getenv("OPENAI_API_KEY"))
+        self.llm = ChatGroq(model="llama3-8b-8192", api_key=os.getenv("GROQ_API_KEY"))
         self.prompt = ChatPromptTemplate.from_template("""
         You are a knowledge graph builder. 
         Extract key entities (Company, Person, Metric, Date) and their RELATIONS from the context.

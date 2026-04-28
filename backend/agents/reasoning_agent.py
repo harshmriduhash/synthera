@@ -1,11 +1,11 @@
-from langchain_openai import ChatOpenAI
+from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from typing import List, Dict
 import os
 
 class ValidatorAgent:
     def __init__(self):
-        self.llm = ChatOpenAI(model="gpt-4o-mini", api_key=os.getenv("OPENAI_API_KEY"))
+        self.llm = ChatGroq(model="llama3-8b-8192", api_key=os.getenv("GROQ_API_KEY"))
         self.prompt = ChatPromptTemplate.from_template("""
         You are a fact-checker. 
         Validate if the following answer is fully supported by the provided context.
@@ -24,9 +24,10 @@ class ValidatorAgent:
 
 class ReasoningAgent:
     def __init__(self):
-        self.llm = ChatOpenAI(model="gpt-4o-mini", api_key=os.getenv("OPENAI_API_KEY"))
+        # Use 70b for deeper reasoning quality
+        self.llm = ChatGroq(model="llama3-70b-8192", api_key=os.getenv("GROQ_API_KEY"))
         self.prompt = ChatPromptTemplate.from_template("""
-        You are a financial analyst.
+        You are a senior financial analyst with 20 years of experience.
         Based on the extracted information and the context, provide a deep reasoning or trend analysis.
         What does this mean for the business or the user's query?
         
