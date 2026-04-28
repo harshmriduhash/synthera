@@ -5,7 +5,7 @@ import json
 
 class DecisionAgent:
     def __init__(self):
-        self.llm = ChatGroq(model="llama3-8b-8192", api_key=os.getenv("GROQ_API_KEY"))
+        self.llm = ChatGroq(model="llama-3.1-8b-instant", api_key=os.getenv("GROQ_API_KEY"))
         self.prompt = ChatPromptTemplate.from_template("""
         You are a strategic decision engine.
         Based on the provided financial signals and context, make a recommendation.

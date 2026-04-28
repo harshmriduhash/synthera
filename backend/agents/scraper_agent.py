@@ -6,7 +6,7 @@ import os
 class ScraperAgent:
     def __init__(self):
         self.search = TavilySearch(api_key=os.getenv("TAVILY_API_KEY"), max_results=5) if os.getenv("TAVILY_API_KEY") else None
-        self.llm = ChatGroq(model="llama3-70b-8192", api_key=os.getenv("GROQ_API_KEY"))
+        self.llm = ChatGroq(model="llama-3.3-70b-versatile", api_key=os.getenv("GROQ_API_KEY"))
         self.prompt = ChatPromptTemplate.from_template("""
         You are a senior financial research analyst. 
         Your goal is to provide high-fidelity, real-time intelligence by supplementing internal document context with external web data.
